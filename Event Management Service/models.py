@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 class Event(BaseModel):
-    id: int
+    id: str  
     title: str
     description: str
     date: str

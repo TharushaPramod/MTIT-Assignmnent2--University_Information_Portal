@@ -18,7 +18,7 @@ def get_all_events():
     return event_service.get_all()
 
 @app.get("/api/events/{event_id}", response_model=Event)
-def get_event(event_id: int):
+def get_event(event_id: str): # <--- int -> str
     """Get an event by ID"""
     event = event_service.get_by_id(event_id)
     if not event:
@@ -31,7 +31,7 @@ def create_event(event: EventCreate):
     return event_service.create(event)
 
 @app.put("/api/events/{event_id}", response_model=Event)
-def update_event(event_id: int, event: EventUpdate):
+def update_event(event_id: str, event: EventUpdate): # <--- int -> str
     """Update an event"""
     updated_event = event_service.update(event_id, event)
     if not updated_event:
@@ -39,7 +39,7 @@ def update_event(event_id: int, event: EventUpdate):
     return updated_event
 
 @app.delete("/api/events/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_event(event_id: int):
+def delete_event(event_id: str): # <--- int -> str
     """Delete an event"""
     success = event_service.delete(event_id)
     if not success:
