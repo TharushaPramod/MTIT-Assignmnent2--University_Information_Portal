@@ -1,4 +1,24 @@
-.env
+# Virtual environment
+venv/
+env/
+
+# Python cache files
 __pycache__/
 *.pyc
-node_modules/
+*.pyo
+
+# Environment variables (IMPORTANT - never push secrets)
+.env
+
+# VS Code settings
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# MongoDB local files (if any)
+*.lock
