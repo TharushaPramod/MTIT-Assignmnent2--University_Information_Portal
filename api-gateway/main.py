@@ -9,10 +9,9 @@ app = FastAPI(title="University Portal API Gateway", version="1.0.0")
 # ==========================================
 # 1. MICROSERVICES URL REGISTRY
 # ==========================================
-# Noticeboard eka 8006 wala, Events eka 8001 wala run wenawa kiyala hithamu
 SERVICES = {
     "noticeboard": "http://localhost:8006",
-    "events": "http://localhost:8001"  
+   
 }
 
 # ==========================================
@@ -31,22 +30,7 @@ class NoticeUpdate(BaseModel):
     content: Optional[str] = None
     date: Optional[str] = None
 
-# Event Management Models (Yaluwage eken gaththa)
-class EventCreate(BaseModel):
-    title: str
-    description: str
-    date: str
-    time: str
-    venue: str
-    event_type: str
 
-class EventUpdate(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
-    date: Optional[str] = None
-    time: Optional[str] = None
-    venue: Optional[str] = None
-    event_type: Optional[str] = None
 
 # ==========================================
 # 3. MAIN GATEWAY FORWARDING LOGIC
@@ -104,26 +88,3 @@ async def update_notice(notice_id: str, body: NoticeUpdate):
 async def delete_notice(notice_id: str):
     return await forward_request("noticeboard", f"/api/notices/{notice_id}", "DELETE")
 
-# ==========================================
-# 5. EVENT MANAGEMENT ROUTES (Port 8001)
-# ==========================================
-@app.get("/gateway/events")
-async def get_all_events():
-    # Yaluwage route eka thibbe /api/events kiyala nisa eka denawa
-    return await forward_request("events", "/api/events", "GET")
-
-@app.get("/gateway/events/{event_id}")
-async def get_event(event_id: str):
-    return await forward_request("events", f"/api/events/{event_id}", "GET")
-
-@app.post("/gateway/events")
-async def create_event(body: EventCreate):
-    return await forward_request("events", "/api/events", "POST", json=body.dict())
-
-@app.put("/gateway/events/{event_id}")
-async def update_event(event_id: str, body: EventUpdate):
-    return await forward_request("events", f"/api/events/{event_id}", "PUT", json=body.dict())
-
-@app.delete("/gateway/events/{event_id}")
-async def delete_event(event_id: str):
-    return await forward_request("events", f"/api/events/{event_id}", "DELETE")
