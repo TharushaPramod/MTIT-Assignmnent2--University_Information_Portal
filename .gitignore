@@ -1,0 +1,15 @@
+# Python Virtual Environment
+venv/
+
+# Security 
+.env
+
+# Python 
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Mac/Windows OS 
+.DS_Store
+Thumbs.db
