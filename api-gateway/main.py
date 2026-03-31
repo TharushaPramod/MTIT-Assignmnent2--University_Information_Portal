@@ -261,6 +261,18 @@ async def delete_notice(notice_id: str):
 async def get_all_items():
     return await forward_request("lostfound", "/items", "GET")
 
+@app.get("/gateway/lost-found/lost", tags=["Lost & Found"], operation_id="GetLostItems")
+async def get_lost_items():
+    return await forward_request("lostfound", "/items/lost", "GET")
+
+@app.get("/gateway/lost-found/found", tags=["Lost & Found"], operation_id="GetFoundItems")
+async def get_found_items():
+    return await forward_request("lostfound", "/items/found", "GET")
+
+@app.get("/gateway/lost-found/{item_id}", tags=["Lost & Found"], operation_id="GetLFItemById")
+async def get_lf_item(item_id: str):
+    return await forward_request("lostfound", f"/items/{item_id}", "GET")
+
 @app.post("/gateway/lost-found", tags=["Lost & Found"], operation_id="CreateLFItem")
 async def create_lf_item(body: LostFoundItemCreate):
     return await forward_request("lostfound", "/items", "POST", json=body.dict())
