@@ -14,7 +14,8 @@ SERVICES = {
     "cafeteria": "http://localhost:8002",
     "noticeboard": "http://localhost:8003",
     "lostfound": "http://localhost:8004",
-    "events": "http://localhost:8005"
+    "events": "http://localhost:8005",
+    "shuttle": "http://localhost:8006"
 }
 
 # ==========================================
@@ -75,7 +76,7 @@ class LostFoundItemCreate(BaseModel):
     location: str
     reportedBy: str
     contactInfo: str
-    type: str  # "lost" or "found"
+    type: str
 
 class LostFoundItemUpdate(BaseModel):
     itemName: Optional[str] = None
@@ -107,6 +108,47 @@ class EventUpdate(BaseModel):
     venue: Optional[str] = None
     event_type: Optional[str] = None
 
+# --- Shuttle Service Models ---
+class ShuttleRouteCreate(BaseModel):
+    routeName: str
+    startLocation: str
+    endLocation: str
+    stops: str
+    distanceKm: str
+    isActive: bool = True
+
+class ShuttleRouteUpdate(BaseModel):
+    routeName: Optional[str] = None
+    startLocation: Optional[str] = None
+    endLocation: Optional[str] = None
+    stops: Optional[str] = None
+    distanceKm: Optional[str] = None
+    isActive: Optional[bool] = None
+
+class ShuttleScheduleCreate(BaseModel):
+    routeName: str
+    departureTime: str
+    arrivalTime: str
+    daysOfWeek: str
+    busNumber: str
+    driverName: str
+    totalSeats: int = 40
+    availableSeats: int = 40
+    isActive: bool = True
+
+class ShuttleScheduleUpdate(BaseModel):
+    routeName: Optional[str] = None
+    departureTime: Optional[str] = None
+    arrivalTime: Optional[str] = None
+    daysOfWeek: Optional[str] = None
+    busNumber: Optional[str] = None
+    driverName: Optional[str] = None
+    totalSeats: Optional[int] = None
+    availableSeats: Optional[int] = None
+    isActive: Optional[bool] = None
+
+class ShuttleSeatsUpdate(BaseModel):
+    availableSeats: int
 
 # ==========================================
 # 3. MAIN GATEWAY FORWARDING LOGIC
@@ -146,126 +188,149 @@ def read_root():
 # ==========================================
 # 4. DIRECTORY SERVICE ROUTES (Port 8001)
 # ==========================================
-@app.get("/gateway/directory", tags=["Directory"])
+@app.get("/gateway/directory", tags=["Directory"], operation_id="GetAllStaff")
 async def get_all_staff():
     return await forward_request("directory", "/api/staff", "GET")
 
-@app.get("/gateway/directory/{staff_id}", tags=["Directory"])
+@app.get("/gateway/directory/{staff_id}", tags=["Directory"], operation_id="GetStaffById")
 async def get_staff_member(staff_id: str):
     return await forward_request("directory", f"/api/staff/{staff_id}", "GET")
 
-@app.post("/gateway/directory", tags=["Directory"])
+@app.post("/gateway/directory", tags=["Directory"], operation_id="CreateStaff")
 async def create_staff_member(body: StaffMemberCreate):
     return await forward_request("directory", "/api/staff", "POST", json=body.dict())
 
-@app.put("/gateway/directory/{staff_id}", tags=["Directory"])
+@app.put("/gateway/directory/{staff_id}", tags=["Directory"], operation_id="UpdateStaff")
 async def update_staff_member(staff_id: str, body: StaffMemberUpdate):
-    return await forward_request("directory", f"/api/staff/{staff_id}", "PUT", json=body.dict())
+    return await forward_request("directory", f"/api/staff/{staff_id}", "PUT", json=body.dict(exclude_unset=True))
 
-@app.delete("/gateway/directory/{staff_id}", tags=["Directory"])
+@app.delete("/gateway/directory/{staff_id}", tags=["Directory"], operation_id="DeleteStaff")
 async def delete_staff_member(staff_id: str):
     return await forward_request("directory", f"/api/staff/{staff_id}", "DELETE")
 
 # ==========================================
 # 5. CAFETERIA SERVICE ROUTES (Port 8002)
 # ==========================================
-@app.get("/gateway/cafeteria", tags=["Cafeteria"])
+@app.get("/gateway/cafeteria", tags=["Cafeteria"], operation_id="GetAllMenu")
 async def get_all_menu_items():
     return await forward_request("cafeteria", "/api/menu", "GET")
 
-@app.get("/gateway/cafeteria/{item_id}", tags=["Cafeteria"])
+@app.get("/gateway/cafeteria/{item_id}", tags=["Cafeteria"], operation_id="GetMenuById")
 async def get_menu_item(item_id: str):
     return await forward_request("cafeteria", f"/api/menu/{item_id}", "GET")
 
-@app.post("/gateway/cafeteria", tags=["Cafeteria"])
+@app.post("/gateway/cafeteria", tags=["Cafeteria"], operation_id="CreateMenu")
 async def create_menu_item(body: MenuItemCreate):
     return await forward_request("cafeteria", "/api/menu", "POST", json=body.dict())
 
-@app.put("/gateway/cafeteria/{item_id}", tags=["Cafeteria"])
+@app.put("/gateway/cafeteria/{item_id}", tags=["Cafeteria"], operation_id="UpdateMenu")
 async def update_menu_item(item_id: str, body: MenuItemUpdate):
-    return await forward_request("cafeteria", f"/api/menu/{item_id}", "PUT", json=body.dict())
+    return await forward_request("cafeteria", f"/api/menu/{item_id}", "PUT", json=body.dict(exclude_unset=True))
 
-@app.delete("/gateway/cafeteria/{item_id}", tags=["Cafeteria"])
+@app.delete("/gateway/cafeteria/{item_id}", tags=["Cafeteria"], operation_id="DeleteMenu")
 async def delete_menu_item(item_id: str):
     return await forward_request("cafeteria", f"/api/menu/{item_id}", "DELETE")
 
 # ==========================================
 # 6. CLUB NOTICEBOARD ROUTES (Port 8003)
 # ==========================================
-@app.get("/gateway/notices", tags=["Noticeboard"])
+@app.get("/gateway/notices", tags=["Noticeboard"], operation_id="GetAllNotices")
 async def get_all_notices():
     return await forward_request("noticeboard", "/api/notices", "GET")
 
-@app.get("/gateway/notices/{notice_id}", tags=["Noticeboard"])
+@app.get("/gateway/notices/{notice_id}", tags=["Noticeboard"], operation_id="GetNoticeById")
 async def get_notice(notice_id: str):
     return await forward_request("noticeboard", f"/api/notices/{notice_id}", "GET")
 
-@app.post("/gateway/notices", tags=["Noticeboard"])
+@app.post("/gateway/notices", tags=["Noticeboard"], operation_id="CreateNotice")
 async def create_notice(body: NoticeCreate):
     return await forward_request("noticeboard", "/api/notices", "POST", json=body.dict())
 
-@app.put("/gateway/notices/{notice_id}", tags=["Noticeboard"])
+@app.put("/gateway/notices/{notice_id}", tags=["Noticeboard"], operation_id="UpdateNotice")
 async def update_notice(notice_id: str, body: NoticeUpdate):
-    return await forward_request("noticeboard", f"/api/notices/{notice_id}", "PUT", json=body.dict())
+    return await forward_request("noticeboard", f"/api/notices/{notice_id}", "PUT", json=body.dict(exclude_unset=True))
 
-@app.delete("/gateway/notices/{notice_id}", tags=["Noticeboard"])
+@app.delete("/gateway/notices/{notice_id}", tags=["Noticeboard"], operation_id="DeleteNotice")
 async def delete_notice(notice_id: str):
     return await forward_request("noticeboard", f"/api/notices/{notice_id}", "DELETE")
 
 # ==========================================
-# 7. LOST & FOUND SERVICE ROUTES (Port 8006)
+# 7. LOST & FOUND SERVICE ROUTES (Port 8004)
 # ==========================================
-@app.get("/gateway/lost-found", tags=["Lost & Found"])
+@app.get("/gateway/lost-found", tags=["Lost & Found"], operation_id="GetAllLFItems")
 async def get_all_items():
     return await forward_request("lostfound", "/items", "GET")
 
-@app.get("/gateway/lost-found/lost", tags=["Lost & Found"])
-async def get_lost_items():
-    return await forward_request("lostfound", "/items/lost", "GET")
-
-@app.get("/gateway/lost-found/found", tags=["Lost & Found"])
-async def get_found_items():
-    return await forward_request("lostfound", "/items/found", "GET")
-
-@app.get("/gateway/lost-found/{item_id}", tags=["Lost & Found"])
-async def get_lf_item(item_id: str):
-    return await forward_request("lostfound", f"/items/{item_id}", "GET")
-
-@app.post("/gateway/lost-found", tags=["Lost & Found"])
+@app.post("/gateway/lost-found", tags=["Lost & Found"], operation_id="CreateLFItem")
 async def create_lf_item(body: LostFoundItemCreate):
     return await forward_request("lostfound", "/items", "POST", json=body.dict())
 
-@app.put("/gateway/lost-found/{item_id}", tags=["Lost & Found"])
+@app.put("/gateway/lost-found/{item_id}", tags=["Lost & Found"], operation_id="UpdateLFItem")
 async def update_lf_item(item_id: str, body: LostFoundItemUpdate):
     return await forward_request("lostfound", f"/items/{item_id}", "PUT", json=body.dict(exclude_unset=True))
 
-@app.patch("/gateway/lost-found/{item_id}/status", tags=["Lost & Found"])
+@app.patch("/gateway/lost-found/{item_id}/status", tags=["Lost & Found"], operation_id="UpdateLFStatus")
 async def update_lf_status(item_id: str, body: LostFoundStatusUpdate):
     return await forward_request("lostfound", f"/items/{item_id}/status", "PATCH", json=body.dict())
 
-@app.delete("/gateway/lost-found/{item_id}", tags=["Lost & Found"])
+@app.delete("/gateway/lost-found/{item_id}", tags=["Lost & Found"], operation_id="DeleteLFItem")
 async def delete_lf_item(item_id: str):
     return await forward_request("lostfound", f"/items/{item_id}", "DELETE")
 
 # ==========================================
-# 8. EVENT MANAGEMENT ROUTES (Port 8007)
+# 8. EVENT MANAGEMENT ROUTES (Port 8005)
 # ==========================================
-@app.get("/gateway/events", tags=["Events"])
+@app.get("/gateway/events", tags=["Events"], operation_id="GetAllEvents")
 async def get_all_events():
     return await forward_request("events", "/api/events", "GET")
 
-@app.get("/gateway/events/{event_id}", tags=["Events"])
-async def get_event(event_id: str):
-    return await forward_request("events", f"/api/events/{event_id}", "GET")
-
-@app.post("/gateway/events", tags=["Events"])
+@app.post("/gateway/events", tags=["Events"], operation_id="CreateEvent")
 async def create_event(body: EventCreate):
     return await forward_request("events", "/api/events", "POST", json=body.dict())
 
-@app.put("/gateway/events/{event_id}", tags=["Events"])
+@app.put("/gateway/events/{event_id}", tags=["Events"], operation_id="UpdateEvent")
 async def update_event(event_id: str, body: EventUpdate):
-    return await forward_request("events", f"/api/events/{event_id}", "PUT", json=body.dict())
+    return await forward_request("events", f"/api/events/{event_id}", "PUT", json=body.dict(exclude_unset=True))
 
-@app.delete("/gateway/events/{event_id}", tags=["Events"])
+@app.delete("/gateway/events/{event_id}", tags=["Events"], operation_id="DeleteEvent")
 async def delete_event(event_id: str):
     return await forward_request("events", f"/api/events/{event_id}", "DELETE")
+
+# ==========================================
+# 9. SHUTTLE SERVICE ROUTES (Port 8006)
+# ==========================================
+@app.post("/gateway/shuttle/routes", tags=["Shuttle Service"], operation_id="CreateRoute")
+async def create_route(body: ShuttleRouteCreate):
+    return await forward_request("shuttle", "/routes", "POST", json=body.dict())
+
+@app.get("/gateway/shuttle/routes", tags=["Shuttle Service"], operation_id="GetAllRoutes")
+async def get_routes():
+    return await forward_request("shuttle", "/routes", "GET")
+
+@app.put("/gateway/shuttle/routes/{route_id}", tags=["Shuttle Service"], operation_id="UpdateRoute")
+async def update_route(route_id: str, body: ShuttleRouteUpdate):
+    return await forward_request("shuttle", f"/routes/{route_id}", "PUT", json=body.dict(exclude_unset=True))
+
+@app.delete("/gateway/shuttle/routes/{route_id}", tags=["Shuttle Service"], operation_id="DeleteRoute")
+async def delete_route(route_id: str):
+    return await forward_request("shuttle", f"/routes/{route_id}", "DELETE")
+
+@app.post("/gateway/shuttle/schedules", tags=["Shuttle Service"], operation_id="CreateSchedule")
+async def create_schedule(body: ShuttleScheduleCreate):
+    return await forward_request("shuttle", "/schedules", "POST", json=body.dict())
+
+@app.get("/gateway/shuttle/schedules", tags=["Shuttle Service"], operation_id="GetAllSchedules")
+async def get_schedules():
+    return await forward_request("shuttle", "/schedules", "GET")
+
+@app.put("/gateway/shuttle/schedules/{schedule_id}", tags=["Shuttle Service"], operation_id="UpdateSchedule")
+async def update_schedule(schedule_id: str, body: ShuttleScheduleUpdate):
+    return await forward_request("shuttle", f"/schedules/{schedule_id}", "PUT", json=body.dict(exclude_unset=True))
+
+@app.patch("/gateway/shuttle/schedules/{schedule_id}/seats", tags=["Shuttle Service"], operation_id="UpdateSeats")
+async def update_available_seats(schedule_id: str, body: ShuttleSeatsUpdate):
+    return await forward_request("shuttle", f"/schedules/{schedule_id}/seats", "PATCH", json=body.dict())
+
+@app.delete("/gateway/shuttle/schedules/{schedule_id}", tags=["Shuttle Service"], operation_id="DeleteSchedule")
+async def delete_schedule(schedule_id: str):
+    return await forward_request("shuttle", f"/schedules/{schedule_id}", "DELETE")
