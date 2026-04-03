@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
 
-# Pradhana Staff Directory Model eka
 class StaffMember(BaseModel):
     id: str
     name: str
@@ -12,7 +11,6 @@ class StaffMember(BaseModel):
     room_number: str          # e.g., "IT-203", "Admin Block Room 5"
     office_hours: str         # e.g., "Mon/Wed 9:00 AM - 11:00 AM"
 
-# Aluth staff member ekak daddi awashya wena details
 class StaffMemberCreate(BaseModel):
     name: str
     designation: str
@@ -22,7 +20,6 @@ class StaffMemberCreate(BaseModel):
     room_number: str
     office_hours: str
 
-# Staff member ekak update karaddi awashya wena details
 class StaffMemberUpdate(BaseModel):
     name: Optional[str] = None
     designation: Optional[str] = None

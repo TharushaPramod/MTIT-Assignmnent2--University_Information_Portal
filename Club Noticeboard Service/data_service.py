@@ -4,7 +4,6 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from models import Notice
 
-# .env file eke thiyena MongoDB URL eka gannawa
 load_dotenv()
 
 class NoticeMongoDataService:
@@ -14,7 +13,6 @@ class NoticeMongoDataService:
         self.db = self.client["university_portal"] 
         self.collection = self.db["club_notices"]  
 
-    # MongoDB _id object eka normal string id ekak karanawa
     def format_notice(self, notice_data):
         if notice_data:
             notice_data["id"] = str(notice_data["_id"])
