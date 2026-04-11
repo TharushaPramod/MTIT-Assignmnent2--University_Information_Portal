@@ -1,4 +1,5 @@
 import os
+import certifi
 from dotenv import load_dotenv
 from pymongo import MongoClient
 from bson.objectid import ObjectId
@@ -10,7 +11,7 @@ load_dotenv()
 class StaffMongoDataService:
     def __init__(self):
         mongo_uri = os.getenv("MONGODB_URI")
-        self.client = MongoClient(mongo_uri)
+        self.client = MongoClient(mongo_uri, tlsCAFile=certifi.where())
         self.db = self.client["university_portal"]
         self.collection = self.db["directory_staff"]
 
