@@ -5,7 +5,6 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from models import StaffMember
 
-# .env file eke thiyena MongoDB URL eka gannawa
 load_dotenv()
 
 class StaffMongoDataService:
@@ -15,7 +14,6 @@ class StaffMongoDataService:
         self.db = self.client["university_portal"]
         self.collection = self.db["directory_staff"]
 
-    # MongoDB _id object eka normal string id ekak karanawa
     def format_staff(self, staff_data):
         if staff_data:
             staff_data["id"] = str(staff_data["_id"])
